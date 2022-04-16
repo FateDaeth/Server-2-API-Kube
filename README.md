@@ -1,65 +1,35 @@
-# Java Rest API 2 Server
+# Server-2-API-Kube
 
-Java Rest API 2 Server/Web-UI is a project based Java Rest API CURD functionalities to Create, Delete, Get server objects using json-encoded message body(postman) or using Web UI.
+An Kubernetes deployment configuration for the Java Rest API 2 Server/Web-UI & MongoDB which is a project based Java Rest API CURD functionalities to Create, Delete, Get server objects using json-encoded message body(postman) or using Web UI. 
+
+
 # Tech Stack
 
-* Java 
-* Spring Boot
-* MongoDB
-* Maven
-* Git
+* minikube
 * Docker
 
-# Dependencies
-Using Spring Initializer from [Spring Boot](https://start.spring.io/) to add the below mentioned dependencies.
 
 
-![depedencies](https://user-images.githubusercontent.com/64476159/163684974-4ad87255-93e3-4a95-b9da-ad67539a5b8c.png)
+Given Kubernetes deployment kustomization.yaml outlined below.
 
-Given Java Rest API 2 Server application tree structure outlined below.
-# Spring Boot Application and Maven files
 ```
-└───server2api
-    ├───src
-    │   ├───main
-    │   │   ├───java
-    │   │   │   └───com
-    │   │   │       └───task1
-    │   │   │           └───server2api
-    │   │   │               ├───controller
-    │   │   │               ├───entity
-    │   │   │               ├───repository
-    │   │   │               └───service
-    │   │   │                   └───impl
-    │   │   └───resources
-    │   │       ├───static
-    │   │       └───templates
-    │   └───test
-    │       └───java
-    │           └───com
-    │               └───task1
-    │                   └───server2api
-   
+resources:
+  - create_sc.yaml
+  - mongovolume.yaml
+  - mongoVolumeClaim.yaml
+  - mongoService.yaml
+  - mongo.yaml
+  - restapiService.yaml
+  - restapi-app.yaml
 ```
 
 ## Running the Application
 
 ```bash
-## Run MongoDB service
-mongod -bind_ip_all
-
-## build application 
-mvn package 
-
-## Run application using Java -jar command
-java -jar /target/< filename >.jar
-
-## Run application using Maven
-maven spring-boot:run
-
+kubectl apply -k kustomization.yaml
 ```
 ## Docker Build
-* Creating a Dockerfile for task4 kubernetes Deployment.
+* Creating a Dockerfile for restapi-app Deployment.
 ```
 FROM openjdk:18-jdk-alpine
 RUN mkdir app
@@ -74,28 +44,39 @@ docker build -t app:v01 .
 ```
 * Push it to Docker Repo
 ```
-docker push task/app:v01
+docker push furqano/apprestapi-app:latest
 ```
-![docker push from tk1](https://user-images.githubusercontent.com/64476159/163685072-ff3efca4-7679-44e4-afe2-7cda88434107.png)
 
-## Usage
-
-```web
-## Rest API endpoint is mapped to http://127.0.0.1:6035/
-
-GET    http://127.0.0.1:6035/servers           - Get all the servers.
-GET    http://127.0.0.1:6035/server/{name}     - To get server by name.
-PUT    http://127.0.0.1:6035/servers/new       - To add from curl/postman. 
-PUT    http://127.0.0.1:6035/servers/create    - To add from webpage.
-DELETE http://127.0.0.1:6035/servers/{id}      - To Delete the server by name.
-PUT    http://127.0.0.1:6035/servers/edit/{id} - To edit the server by name/id.
-```
 ## Screenshots
+### Storage-Class
 
+### Persistent Volume for MongoDB 
 
-## Using Web UI Forms
-![createserver](https://user-images.githubusercontent.com/64476159/163685021-ef5cfa85-74f2-4854-b96c-33b5e9f635bd.gif)
-![delete-update](https://user-images.githubusercontent.com/64476159/163685029-21b1e87b-db53-43c9-afef-9aba3347fb89.gif)
+### Persistent Volume Claim for MongoDB 
 
-![finding resources by name](https://user-images.githubusercontent.com/64476159/163684997-aa57ed12-dca0-475a-bce6-af7f9680ea1c.png)
+### Service for MongoDB 
 
+### MongoDB Deployment 
+
+### Restapi-app Deployment
+
+### Restapi-app Service
+
+## Connect to Application Using Port-Forward 
+
+```
+kubectl port-forward svc/rest-api-app-service 6035:6035
+```
+## Connect to Application Using NodePort 
+
+```
+$ kubectl get svc 
+
+rest-api-app-service   NodePort    10.105.194.142   <none>        6035:32129/TCP
+
+$minikube ip
+
+192.168.49.2
+
+http://192.168.49.2:32129/servers
+```
